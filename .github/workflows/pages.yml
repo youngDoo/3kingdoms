@@ -1,0 +1,42 @@
+name: Deploy 大耳朵刘玄德 to GitHub Pages
+
+# 自动发布：推送到 main 即部署；也可在 Actions 页手动触发。
+# configure-pages 带 enablement: true，即使仓库还没开过 Pages，这一步也会自动开启。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages (enable if not yet enabled)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload site (仓库根 = 站点根)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
