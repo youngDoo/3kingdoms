@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>大耳朵刘玄德 · 三十七年不放弃</title>
+<style>
+  :root { --ink:#2B2B28; --paper:#FBF8F0; --gold:#F5B93B; --celadon:#8FA98F; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:#14150F; color:var(--paper);
+    font-family:"Maple Mono NF CN","PingFang SC","Microsoft YaHei",system-ui,sans-serif; overflow:hidden; }
+  #stage { position:fixed; inset:0; display:grid; place-items:center; }
+  .slide { position:absolute; inset:0; display:none; place-items:center; }
+  .slide.on { display:grid; }
+  .slide img { width:100%; height:100%; object-fit:contain; background:#14150F; }
+  .cap { position:absolute; left:0; right:0; bottom:0; padding:2.2vh 3vw 3.2vh;
+    background:linear-gradient(to top, rgba(20,21,15,.86), rgba(20,21,15,0)); pointer-events:none; }
+  .cap h2 { margin:0 0 .35em; font-size:clamp(16px,2.5vw,34px); font-weight:700; letter-spacing:.04em; }
+  .cap h2 .n { color:var(--gold); font-weight:400; margin-right:.5em; font-size:.8em; }
+  .notes { position:absolute; left:0; right:0; bottom:0; padding:3vh 4vw 4vh; max-height:56vh;
+    overflow:auto; background:rgba(20,21,15,.93); border-top:2px solid var(--gold); line-height:1.85;
+    font-size:clamp(13px,1.6vw,22px); display:none; }
+  .notes.on { display:block; }
+  .notes .cue { color:var(--gold); margin-bottom:.7em; font-size:.88em; }
+  .notes .say { color:var(--paper); }
+  body.notes-off .cap { display:block; }
+  body.notes-on  .cap { display:none; }
+  /* the title slide overlays the cover art with the film title */
+  .titlecard { position:absolute; left:4vw; bottom:8vh; text-align:left; pointer-events:none; }
+  .titlecard .kicker { color:var(--gold); letter-spacing:.5em; font-size:clamp(11px,1.1vw,17px); }
+  .titlecard h1 { margin:.25em 0 0; font-size:clamp(30px,6vw,96px); line-height:1.06;
+    text-shadow:0 2px 24px rgba(20,21,15,.55); }
+  .titlecard .sub { margin-top:.5em; font-size:clamp(14px,2vw,32px); color:#EFE6D2; letter-spacing:.06em; }
+  .rail { position:fixed; left:0; right:0; top:0; height:3.5vh; display:flex; gap:6px;
+    align-items:center; justify-content:center; padding:0 3vw; z-index:5; opacity:0; transition:opacity .25s; }
+  .rail.show, .rail:hover { opacity:1; }
+  .dot { flex:0 0 auto; width:9px; height:9px; border-radius:50%; background:#5a5a4e; cursor:pointer;
+    border:0; padding:0; }
+  .dot.on { background:var(--gold); transform:scale(1.35); }
+  .hint { position:fixed; right:3vw; bottom:2vh; font-size:12px; color:#8d8d80; z-index:5;
+    opacity:0; transition:opacity .3s; }
+  .hint.show { opacity:1; }
+  @media print {
+    html,body { background:#fff; overflow:visible; height:auto; }
+    #stage { position:static; display:block; }
+    .slide { position:static; display:block !important; page-break-after:always; height:100vh; }
+    .slide img { height:100vh; }
+    .rail,.hint,.notes { display:none !important; }
+  }
+</style>
+</head>
+<body class="notes-off">
+<div class="rail" id="rail"></div>
+<div id="stage">
+<div class="slide" data-n="1"><img src="pages/01-cover.jpg" alt="封面" decoding="async"><div class="titlecard"><div class="kicker">乐乐小主播</div><h1>大耳朵刘玄德</h1><div class="sub">三十七年不放弃</div></div><div class="cap"><h2><span class="n">01</span>封面</h2></div><div class="notes"><div class="cue">动作提示：站定，微笑，看观众</div><div class="say">大家好，我是乐乐小主播 ×××。今天的故事叫《大耳朵刘玄德——三十七年不放弃》。</div></div></div>
+<div class="slide" data-n="2"><img src="pages/02-tree-wish.jpg" alt="穷孩子与大桑树" decoding="async"><div class="cap"><h2><span class="n">02</span>穷孩子与大桑树</h2></div><div class="notes"><div class="cue">动作提示：翻页时手指向前上方（指树）；说“你们谁能做到”时自己伸手比一比</div><div class="say">很久以前有个小男孩叫刘备。他很小就没了爸爸，家里很穷，天天和妈妈一起编草鞋、编席子，换米吃。（停一拍）他家院子里有一棵大桑树，像一把大伞。他指着树说：「等我长大，一定要坐上这样的大车！」（停一拍，转向小朋友）书上还说，他长大以后个子很高，耳朵很大，胳膊特别长，手垂下来能到膝盖——你们谁能做到呀？</div></div></div>
+<div class="slide" data-n="3"><img src="pages/03-friends-set-out.jpg" alt="两个好朋友，二十四岁出发" decoding="async"><div class="cap"><h2><span class="n">03</span>两个好朋友，二十四岁出发</h2></div><div class="notes"><div class="cue">动作提示：迈一步，做“出发”的动作</div><div class="say">长大以后，他认识了两个好朋友，关羽和张飞，好得像亲兄弟。二十四岁那年，他带着他们走出家门：我要做一件大事！</div></div></div>
+<div class="slide" data-n="4"><img src="pages/04-lost-xuzhou.jpg" alt="第一次摔跤：家没了" decoding="async"><div class="cap"><h2><span class="n">04</span>第一次摔跤：家没了</h2></div><div class="notes"><div class="cue">动作提示：语气放低</div><div class="say">可是打了好多年，好不容易当上徐州的主人，家却被人偷走了。他只好从头再来。</div></div></div>
+<div class="slide" data-n="5"><img src="pages/05-three-doorways.jpg" alt="到处借住的人" decoding="async"><div class="cap"><h2><span class="n">05</span>到处借住的人</h2></div><div class="notes"><div class="cue">动作提示：伸三根手指：曹操、袁绍、刘表</div><div class="say">他去投靠别人：跟过曹操，跟过袁绍，跟过刘表。走到哪里，都住在别人的屋檐下。</div></div></div>
+<div class="slide" data-n="6"><img src="pages/06-tears.jpg" alt="四十七岁的眼泪" decoding="async"><div class="cap"><h2><span class="n">06</span>四十七岁的眼泪</h2></div><div class="notes"><div class="cue">动作提示：全片最慢最轻的一页，停一拍再说</div><div class="say">四十七岁那年，他摸到自己大腿上长了肉，哭了。他说：「日子一天天过去，我的大事还没有做成啊！」</div></div></div>
+<div class="slide" data-n="7"><img src="pages/07-three-visits.jpg" alt="三次去请一个人" decoding="async"><div class="cap"><h2><span class="n">07</span>三次去请一个人</h2></div><div class="notes"><div class="cue">动作提示：每说一次举一根手指：一次、两次、三次</div><div class="say">他没有停下来。听说山里有个二十七岁的年轻人很厉害，他就一次、两次、三次去请他。第三次，那扇门终于开了。</div></div></div>
+<div class="slide" data-n="8"><img src="pages/08-red-cliffs.jpg" alt="第一次大胜：赤壁" decoding="async"><div class="cap"><h2><span class="n">08</span>第一次大胜：赤壁</h2></div><div class="notes"><div class="cue">动作提示：语气放开，这是第一次赢</div><div class="say">四十八岁，他和孙权一起，在赤壁打赢了人生第一场大胜仗。</div></div></div>
+<div class="slide" data-n="9"><img src="pages/09-thirty-seven-years.jpg" alt="三十七年" decoding="async"><div class="cap"><h2><span class="n">09</span>三十七年</h2></div><div class="notes"><div class="cue">动作提示：双手张开，慢慢向上</div><div class="say">六十一岁那年，他在成都当上了皇帝。从二十四岁出发，他整整走了三十七年。</div></div></div>
+<div class="slide" data-n="10"><img src="pages/10-last-lesson.jpg" alt="最后一课" decoding="async"><div class="cap"><h2><span class="n">10</span>最后一课</h2></div><div class="notes"><div class="cue">动作提示：面向小朋友，摊开手问</div><div class="say">最后一课，他留给儿子两句话：「不要因为坏事很小就去做；不要因为好事很小就不做。」小朋友们，刘备输过很多次，可他一次都没有放弃。你心里的小火苗，还在吗？</div></div></div>
+</div>
+<div class="hint" id="hint">← → 翻页 · N 显示讲稿 · F 全屏</div>
+<script>
+const slides = [...document.querySelectorAll('.slide')];
+const rail = document.getElementById('rail');
+const hint = document.getElementById('hint');
+let i = 0, hideTimer;
+
+slides.forEach((_, n) => {
+  const b = document.createElement('button');
+  b.className = 'dot'; b.title = '第 ' + (n+1) + ' 页';
+  b.onclick = e => { e.stopPropagation(); go(n); };
+  rail.appendChild(b);
+});
+const dots = [...rail.children];
+
+function go(n) {
+  i = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, k) => s.classList.toggle('on', k === i));
+  dots.forEach((d, k) => d.classList.toggle('on', k === i));
+  history.replaceState(null, '', '#' + (i + 1));
+  preload();
+}
+function preload() {
+  [i+1, i+2].forEach(k => { if (slides[k]) { const im = slides[k].querySelector('img');
+    if (im) { const p = new Image(); p.src = im.src; } } });
+}
+function toggleNotes() {
+  const on = document.body.classList.toggle('notes-on');
+  document.body.classList.toggle('notes-off', !on);
+  slides[i].querySelector('.notes').classList.toggle('on', on);
+}
+document.addEventListener('keydown', e => {
+  const k = e.key;
+  if (k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'PageDown') { e.preventDefault(); go(i+1); }
+  else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') { e.preventDefault(); go(i-1); }
+  else if (k === 'Home') go(0);
+  else if (k === 'End') go(slides.length - 1);
+  else if (k === 'n' || k === 'N') toggleNotes();
+  else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+});
+// click / tap: right half advances, left half goes back
+document.getElementById('stage').addEventListener('click', e => {
+  go(e.clientX < window.innerWidth * 0.35 ? i - 1 : i + 1);
+});
+// swipe
+let x0 = null;
+addEventListener('touchstart', e => x0 = e.touches[0].clientX, {passive:true});
+addEventListener('touchend', e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 45) go(dx < 0 ? i + 1 : i - 1);
+  x0 = null;
+}, {passive:true});
+// hint shows at start and on any nav, then fades
+function flash() { hint.classList.add('show'); clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => hint.classList.remove('show'), 2600); }
+addEventListener('load', () => { go(parseInt(location.hash.slice(1), 10) - 1 || 0); flash(); });
+addEventListener('mousemove', () => { clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => hint.classList.remove('show'), 1800); });
+</script>
+</body>
+</html>
