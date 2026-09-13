@@ -47,12 +47,16 @@
   .dl a { color:var(--gold); text-decoration:none; border-bottom:1px dotted currentColor;
     margin-right:.9em; }
   .dl a:hover { color:#fff; border-bottom-style:solid; }
+  .bgm { position:fixed; right:3vw; top:2.2vh; font-size:12px; color:#8d8d80; z-index:7;
+    cursor:pointer; user-select:none; opacity:.7; transition:opacity .25s, color .25s; }
+  .bgm:hover { opacity:1; }
+  .bgm.on { color:var(--gold); opacity:1; }
   @media print {
     html,body { background:#fff; overflow:visible; height:auto; }
     #stage { position:static; display:block; }
     .slide { position:static; display:block !important; page-break-after:always; height:100vh; }
     .slide img { height:100vh; }
-    .rail,.hint,.notes,.dl { display:none !important; }
+    .rail,.hint,.notes,.dl,.bgm { display:none !important; }
   }
 </style>
 </head>
@@ -70,7 +74,8 @@
 <div class="slide" data-n="9"><img src="pages/09-thirty-seven-years.jpg" alt="三十七年" decoding="async"><div class="cap"><h2><span class="n">09</span>三十七年</h2></div><div class="notes"><div class="cue">动作提示：双手张开，慢慢向上</div><div class="say">六十一岁那年，他在成都当上了皇帝。从二十四岁出发，他整整走了三十七年。</div></div></div>
 <div class="slide" data-n="10"><img src="pages/10-last-lesson.jpg" alt="最后一课" decoding="async"><div class="cap"><h2><span class="n">10</span>最后一课</h2></div><div class="notes"><div class="cue">动作提示：面向小朋友，摊开手问</div><div class="say">最后一课，他留给儿子两句话：「不要因为坏事很小就去做；不要因为好事很小就不做。」小朋友们，刘备输过很多次，可他一次都没有放弃。你心里的小火苗，还在吗？</div></div></div>
 </div>
-<div class="hint" id="hint">← → 翻页 · N 显示讲稿 · F 全屏 · 更新 2026-09-14 01:54</div>
+<div class="hint" id="hint">← → 翻页 · N 显示讲稿 · F 全屏 · 更新 2026-09-14 02:03</div>
+<div class="bgm" id="bgm">♪ 配乐：关（点这里或按 M 开启）</div>
 <div class="dl" id="dl">资料下载：<a href="downloads/大耳朵刘玄德-大屏放映.pptx">PPTX 放映</a><a href="downloads/图卡-A4打印版.pdf">A4 图卡 PDF</a><a href="downloads/讲稿-大字拼音版.html">大字拼音讲稿</a><a href="downloads/讲稿-大耳朵刘玄德.md">讲稿（含史实表）</a></div>
 <script>
 const slides = [...document.querySelectorAll('.slide')];
@@ -87,12 +92,58 @@ slides.forEach((_, n) => {
 });
 const dots = [...rail.children];
 
+/* ---- 背景音乐：3 段，翻页自动交叉淡入淡出（浏览器要求首次由用户点击/按键触发） ---- */
+const BGM = [
+  { from:1,  to:3,  src:'audio/bgm-1.mp3', vol:0.35 },   // P1-P3  暖：开场 → 桃园结义
+  { from:4,  to:6,  src:'audio/bgm-2.mp3', vol:0.22 },   // P4-P6  沉：摔跤 → 借住 → 眼泪
+  { from:7,  to:10, src:'audio/bgm-3.mp3', vol:0.30 },   // P7-P10 扬：三顾 → 赤壁 → 登坛 → 遗诏
+];
+const bgmEls = BGM.map(s => { const a = new Audio(s.src); a.loop = true; a.preload = 'auto'; a.volume = 0; return a; });
+let bgmOn = false;
+
+function bgmSeg(n) {                       // n = 1-based slide number
+  const k = BGM.findIndex(s => n >= s.from && n <= s.to);
+  return k < 0 ? 0 : k;
+}
+function bgmFade(el, to, ms) {             // 手动音量渐变（比 Web Audio 更不容易被浏览器策略拦）
+  clearInterval(el._fade);
+  const steps = Math.max(1, Math.round(ms / 40));
+  const from = el.volume, d = (to - from) / steps;
+  let n = 0;
+  el._fade = setInterval(() => {
+    n++;
+    el.volume = Math.max(0, Math.min(1, from + d * n));
+    if (n >= steps) { clearInterval(el._fade); if (to === 0) el.pause(); }
+  }, 40);
+}
+function bgmApply() {
+  const k = bgmSeg(i + 1);
+  bgmEls.forEach((el, j) => {
+    if (!bgmOn) { bgmFade(el, 0, 700); return; }
+    if (j === k) {
+      if (el.paused) { el.volume = 0; el.play().catch(() => {}); }
+      bgmFade(el, BGM[j].vol, 1400);
+    } else {
+      bgmFade(el, 0, 1000);
+    }
+  });
+}
+function bgmToggle() {
+  bgmOn = !bgmOn;
+  const tag = document.getElementById('bgm');
+  tag.classList.toggle('on', bgmOn);
+  tag.textContent = bgmOn ? '♪ 配乐：开（按 M 关）' : '♪ 配乐：关（点这里或按 M 开启）';
+  bgmApply();
+}
+document.getElementById('bgm').addEventListener('click', e => { e.stopPropagation(); bgmToggle(); });
+
 function go(n) {
   i = Math.max(0, Math.min(slides.length - 1, n));
   slides.forEach((s, k) => s.classList.toggle('on', k === i));
   dots.forEach((d, k) => d.classList.toggle('on', k === i));
   history.replaceState(null, '', '#' + (i + 1));
   dl.classList.toggle('on', i === 0);
+  bgmApply();
   preload();
 }
 function preload() {
@@ -111,6 +162,7 @@ document.addEventListener('keydown', e => {
   else if (k === 'Home') go(0);
   else if (k === 'End') go(slides.length - 1);
   else if (k === 'n' || k === 'N') toggleNotes();
+  else if (k === 'm' || k === 'M') bgmToggle();
   else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
 });
 // click / tap: right half advances, left half goes back
@@ -133,6 +185,6 @@ addEventListener('load', () => { go(parseInt(location.hash.slice(1), 10) - 1 || 
 addEventListener('mousemove', () => { clearTimeout(hideTimer);
   hideTimer = setTimeout(() => hint.classList.remove('show'), 1800); });
 </script>
-<!-- BUILD:2026-09-14 01:54 -->
+<!-- BUILD:2026-09-14 02:03 -->
 </body>
 </html>
