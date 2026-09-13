@@ -74,8 +74,8 @@
 <div class="slide" data-n="9"><img src="pages/09-thirty-seven-years.jpg" alt="三十七年" decoding="async"><div class="cap"><h2><span class="n">09</span>三十七年</h2></div><div class="notes"><div class="cue">动作提示：双手张开，慢慢向上</div><div class="say">六十一岁那年，他在成都当上了皇帝。从二十四岁出发，他整整走了三十七年。</div></div></div>
 <div class="slide" data-n="10"><img src="pages/10-last-lesson.jpg" alt="最后一课" decoding="async"><div class="cap"><h2><span class="n">10</span>最后一课</h2></div><div class="notes"><div class="cue">动作提示：面向小朋友，摊开手问</div><div class="say">最后一课，他留给儿子两句话：「不要因为坏事很小就去做；不要因为好事很小就不做。」小朋友们，刘备输过很多次，可他一次都没有放弃。你心里的小火苗，还在吗？</div></div></div>
 </div>
-<div class="hint" id="hint">← → 翻页 · N 显示讲稿 · F 全屏 · 更新 2026-09-14 02:03</div>
-<div class="bgm" id="bgm">♪ 配乐：关（点这里或按 M 开启）</div>
+<div class="hint" id="hint">← → 翻页 · N 显示讲稿 · F 全屏 · 更新 2026-09-14 02:11</div>
+<div class="bgm on" id="bgm">♪ 配乐：开（按 M 关）</div>
 <div class="dl" id="dl">资料下载：<a href="downloads/大耳朵刘玄德-大屏放映.pptx">PPTX 放映</a><a href="downloads/图卡-A4打印版.pdf">A4 图卡 PDF</a><a href="downloads/讲稿-大字拼音版.html">大字拼音讲稿</a><a href="downloads/讲稿-大耳朵刘玄德.md">讲稿（含史实表）</a></div>
 <script>
 const slides = [...document.querySelectorAll('.slide')];
@@ -92,27 +92,48 @@ slides.forEach((_, n) => {
 });
 const dots = [...rail.children];
 
-/* ---- 背景音乐：3 段，翻页自动交叉淡入淡出（浏览器要求首次由用户点击/按键触发） ---- */
+/* ---- 背景音乐：3 段，默认开启，翻页自动交叉淡入淡出 ----
+   浏览器要求首次播放需有人工交互：被拦时自动进入“待开启”，任意点击/按键后立即起播。 */
 const BGM = [
   { from:1,  to:3,  src:'audio/bgm-1.mp3', vol:0.35 },   // P1-P3  暖：开场 → 桃园结义
   { from:4,  to:6,  src:'audio/bgm-2.mp3', vol:0.22 },   // P4-P6  沉：摔跤 → 借住 → 眼泪
   { from:7,  to:10, src:'audio/bgm-3.mp3', vol:0.30 },   // P7-P10 扬：三顾 → 赤壁 → 登坛 → 遗诏
 ];
 const bgmEls = BGM.map(s => { const a = new Audio(s.src); a.loop = true; a.preload = 'auto'; a.volume = 0; return a; });
-let bgmOn = false;
+let bgmOn = true;          // 默认打开
+let bgmPending = false;    // 已请求播放但被浏览器拦下，等首次交互
 
 function bgmSeg(n) {                       // n = 1-based slide number
   const k = BGM.findIndex(s => n >= s.from && n <= s.to);
   return k < 0 ? 0 : k;
 }
-function bgmFade(el, to, ms) {             // 手动音量渐变（比 Web Audio 更不容易被浏览器策略拦）
+function bgmLabel() {
+  const tag = document.getElementById('bgm');
+  tag.classList.toggle('on', bgmOn);
+  tag.textContent = !bgmOn ? '♪ 配乐：关（点这里或按 M 开启）'
+                  : bgmPending ? '♪ 配乐：待开启（按任意键或点一下）'
+                  : '♪ 配乐：开（按 M 关）';
+}
+function bgmArm() {                        // 首次交互后立刻起播
+  if (bgmPending) return;
+  bgmPending = true; bgmLabel();
+  const kick = () => {
+    bgmPending = false;
+    ['pointerdown','keydown','touchstart','click'].forEach(t =>
+      window.removeEventListener(t, kick, true));
+    bgmApply();
+  };
+  ['pointerdown','keydown','touchstart','click'].forEach(t =>
+    window.addEventListener(t, kick, true));
+}
+function bgmFade(el, to, ms) {             // 手动音量渐变（比 Web Audio 更不容易被策略拦）
   clearInterval(el._fade);
   const steps = Math.max(1, Math.round(ms / 40));
   const from = el.volume, d = (to - from) / steps;
   let n = 0;
   el._fade = setInterval(() => {
     n++;
-    el.volume = Math.max(0, Math.min(1, from + d * n));
+    el.volume = (to > 0 && el.paused) ? 0 : Math.max(0, Math.min(1, from + d * n));
     if (n >= steps) { clearInterval(el._fade); if (to === 0) el.pause(); }
   }, 40);
 }
@@ -121,7 +142,11 @@ function bgmApply() {
   bgmEls.forEach((el, j) => {
     if (!bgmOn) { bgmFade(el, 0, 700); return; }
     if (j === k) {
-      if (el.paused) { el.volume = 0; el.play().catch(() => {}); }
+      if (el.paused) {
+        el.volume = 0;
+        const p = el.play();
+        if (p && p.catch) p.catch(() => bgmArm());
+      }
       bgmFade(el, BGM[j].vol, 1400);
     } else {
       bgmFade(el, 0, 1000);
@@ -130,12 +155,12 @@ function bgmApply() {
 }
 function bgmToggle() {
   bgmOn = !bgmOn;
-  const tag = document.getElementById('bgm');
-  tag.classList.toggle('on', bgmOn);
-  tag.textContent = bgmOn ? '♪ 配乐：开（按 M 关）' : '♪ 配乐：关（点这里或按 M 开启）';
+  if (bgmOn) bgmPending = false;
+  bgmLabel();
   bgmApply();
 }
 document.getElementById('bgm').addEventListener('click', e => { e.stopPropagation(); bgmToggle(); });
+bgmLabel();
 
 function go(n) {
   i = Math.max(0, Math.min(slides.length - 1, n));
@@ -185,6 +210,6 @@ addEventListener('load', () => { go(parseInt(location.hash.slice(1), 10) - 1 || 
 addEventListener('mousemove', () => { clearTimeout(hideTimer);
   hideTimer = setTimeout(() => hint.classList.remove('show'), 1800); });
 </script>
-<!-- BUILD:2026-09-14 02:03 -->
+<!-- BUILD:2026-09-14 02:11 -->
 </body>
 </html>
