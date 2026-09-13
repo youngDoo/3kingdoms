@@ -32,10 +32,16 @@ jobs:
         with:
           enablement: true
 
-      - name: Upload site (仓库根 = 站点根)
+      - name: Stage site (keep .git and .github out of the artifact)
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='.github' ./ _site/
+          touch _site/.nojekyll
+
+      - name: Upload site (仓库根 = 站点根，已剔除 .git/.github)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
